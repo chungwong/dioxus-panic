@@ -20,7 +20,10 @@ fn main() {
 
 fn App() -> Element {
     rsx! {
-        Router::<Route> {}
+        ErrorBoundary {
+            handle_error: |_error| rsx!{ "Hmm, something went wrong." },
+            Router::<Route> {}
+        }
     }
 }
 
@@ -47,7 +50,14 @@ fn Home() -> Element {
         div {
             h1 { "High-Five counter: {count}" }
             button { onclick: move |_| count += 1, "Up high!" }
-            button { onclick: move |_| count -= 1, "Down low!" }
+            // panic in onclick
+            button {
+                onclick: move |_| {
+                    count -= 1;
+                    panic!("panic in low");
+                },
+                "Down low!"
+            }
             button {
                 onclick: move |_| async move {
                     if let Ok(data) = get_server_data().await {
@@ -63,10 +73,11 @@ fn Home() -> Element {
     }
 }
 
+/// A server fn that panics
 #[server(PostServerData)]
 async fn post_server_data(data: String) -> Result<(), ServerFnError> {
     tracing::info!("Server received: {}", data);
-    Ok(())
+    panic!("post_server_data panic!");
 }
 
 #[server(GetServerData)]

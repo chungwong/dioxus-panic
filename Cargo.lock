@@ -1699,6 +1699,7 @@ version = "0.1.0"
 dependencies = [
  "dioxus",
  "dioxus-logger",
+ "http 1.1.0",
  "serde",
 ]
 
